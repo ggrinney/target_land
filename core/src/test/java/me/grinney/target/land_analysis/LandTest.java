@@ -13,7 +13,7 @@ public class LandTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testConstructorNagativeDimension() {
+    public void testConstructorNegativeDimension() {
         new Land(-1, 50);
     }
 

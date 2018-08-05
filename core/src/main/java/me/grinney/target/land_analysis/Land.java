@@ -10,6 +10,11 @@ import java.util.*;
 public class Land {
     private final Condition[][] grid;
 
+    /**
+     * Creates a plot of fertile land with the given dimensions
+     * @param width width of plot
+     * @param length length of plot
+     */
     public Land(int width, int length) {
         if(length <= 0 || width <= 0) {
             throw new IllegalArgumentException("Land dimensions must be positive");
@@ -24,6 +29,13 @@ public class Land {
         }
     }
 
+    /**
+     * Adds a rectangular barren plot to this land
+     * @param left coordinate of leftmost boundary
+     * @param bottom coordinate of bottommost boundary
+     * @param right coordinate of rightmost boundary
+     * @param top coordinate of topmost boundary
+     */
     public void addBarrenPlot(int left, int bottom, int right, int top) {
         validateAddBarrenPlotParams(left, bottom, right, top);
 
@@ -50,6 +62,10 @@ public class Land {
         }
     }
 
+    /**
+     * Computes the areas of the fertile sections of the land.
+     * @return The areas of the fertile sections from smallest to largest
+     */
     public List<Integer> computeFertileAreas() {
         Condition[][] tally = copyGrid();
         int width = tally.length;
@@ -70,43 +86,43 @@ public class Land {
     }
 
     private int fillAndComputeAreaFromPoint(Condition[][] tally, Coordinate coord) {
-
         if(tally[coord.getX()][coord.getY()] == Condition.BARREN) {
             return 0;
         }
 
-
         int area = 0;
 
-        Stack<Coordinate> remaining = new Stack<Coordinate>();
+        Stack<Coordinate> remaining = new Stack<>();
         remaining.push(coord);
 
         while(!remaining.isEmpty()) {
 
             Coordinate curr = remaining.pop();
 
+            if(tally[curr.getX()][curr.getY()] != Condition.BARREN) {
+                // above curr
+                addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() + 1));
+
+                // below curr
+                addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() - 1));
+
+                // to the left of curr
+                addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX() - 1, curr.getY()));
+
+                // to the right of curr
+                addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX() + 1, curr.getY()));
+
+                area++;
+            }
+
             tally[curr.getX()][curr.getY()] = Condition.BARREN;
-
-            // above
-            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() + 1));
-
-            // below
-            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() - 1));
-
-            // to the left
-            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX() - 1, curr.getY()));
-
-            // to the right
-            addRemainingCoordinate(tally, remaining,  new Coordinate(curr.getX() + 1, curr.getY()));
-
-            area++;
         }
 
         return area;
     }
 
     private void addRemainingCoordinate(Condition[][] tally, Stack<Coordinate> remaining, Coordinate coord) {
-        if(isFertile(tally, coord) && !remaining.contains(coord)) {
+        if(isFertile(tally, coord)) {
             remaining.add(coord);
         }
     }
@@ -163,7 +179,12 @@ public class Land {
         return copy;
     }
 
-    public void printAsciiArt(Condition[][] land) {
+    /**
+     * Prints an ASCII visualization of the 2D array of Conditions representing a plot of land.
+     * This is useful in debugging.
+     * @param land the 2D array of Conditions to visualize
+     */
+    public static void printAsciiArt(Condition[][] land) {
         for(int i = land[0].length - 1; i >= 0; i--) {
             for(int j = 0; j < land.length; j++) {
                 if(land[j][i] == Condition.FERTILE) {
