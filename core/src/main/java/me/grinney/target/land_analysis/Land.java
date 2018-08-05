@@ -1,8 +1,6 @@
 package me.grinney.target.land_analysis;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by geoffrey on 8/4/18.
@@ -59,11 +57,10 @@ public class Land {
 
         List<Integer> areas = new ArrayList<Integer>();
 
-        for (int i = 0; i <= width; i++) {
-            for(int j = 0; j <= length; j++) {
-                int area = fillAndComputeAreaFromPoint(tally, i, j);
+        for (int i = 0; i < width; i++) {
+            for(int j = 0; j < length; j++) {
+                int area = fillAndComputeAreaFromPoint(tally, new Coordinate(i, j));
                 if(area > 0) {
-                    System.out.println(area);
                     areas.add(area);
                 }
             }
@@ -72,18 +69,86 @@ public class Land {
         return areas;
     }
 
-    private int fillAndComputeAreaFromPoint(Condition[][] tally, int x, int y) {
-        if(x < 0 || x >= tally.length || y < 0 || y >=tally[0].length) {
+    private int fillAndComputeAreaFromPoint(Condition[][] tally, Coordinate coord) {
+
+        if(tally[coord.getX()][coord.getY()] == Condition.BARREN) {
             return 0;
         }
-        if(tally[x][y] == Condition.BARREN) {
-            return 0;
+
+
+        int area = 0;
+
+        Stack<Coordinate> remaining = new Stack<Coordinate>();
+        remaining.push(coord);
+
+        while(!remaining.isEmpty()) {
+
+            Coordinate curr = remaining.pop();
+
+            tally[curr.getX()][curr.getY()] = Condition.BARREN;
+
+            // above
+            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() + 1));
+
+            // below
+            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX(), curr.getY() - 1));
+
+            // to the left
+            addRemainingCoordinate(tally, remaining, new Coordinate(curr.getX() - 1, curr.getY()));
+
+            // to the right
+            addRemainingCoordinate(tally, remaining,  new Coordinate(curr.getX() + 1, curr.getY()));
+
+            area++;
         }
-        tally[x][y] = Condition.BARREN;
-        return 1 + fillAndComputeAreaFromPoint(tally, x + 1, y)
-                + fillAndComputeAreaFromPoint(tally, x - 1, y)
-                + fillAndComputeAreaFromPoint(tally, x , y + 1)
-                + fillAndComputeAreaFromPoint(tally, x , y - 1);
+
+        return area;
+    }
+
+    private void addRemainingCoordinate(Condition[][] tally, Stack<Coordinate> remaining, Coordinate coord) {
+        if(isFertile(tally, coord) && !remaining.contains(coord)) {
+            remaining.add(coord);
+        }
+    }
+
+    private boolean isFertile(Condition[][] tally, Coordinate coord) {
+        return  !(coord.getX() < 0 || coord.getX() >= tally.length
+                    || coord.getY() < 0 || coord.getY() >= tally[0].length
+                    || tally[coord.getX()][coord.getY()] == Condition.BARREN);
+    }
+
+
+
+    private class Coordinate {
+        private int x;
+        private int y;
+
+        public Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Coordinate that = (Coordinate) o;
+            return x == that.x &&
+                    y == that.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
     }
 
     private Condition[][] copyGrid() {
@@ -98,12 +163,12 @@ public class Land {
         return copy;
     }
 
-    public void printAsciiArt() {
-        for(int i = grid[0].length - 1; i >= 0; i--) {
-            for(int j = 0; j < grid.length; j++) {
-                if(grid[j][i] == Condition.FERTILE) {
+    public void printAsciiArt(Condition[][] land) {
+        for(int i = land[0].length - 1; i >= 0; i--) {
+            for(int j = 0; j < land.length; j++) {
+                if(land[j][i] == Condition.FERTILE) {
                     System.out.print('\'');
-                } else if (grid[j][i] == Condition.BARREN) {
+                } else if (land[j][i] == Condition.BARREN) {
                     System.out.print('#');
                 } else {
                     throw new IllegalStateException("Shouldn't happen. Land is either fertile or barren.");
@@ -111,6 +176,7 @@ public class Land {
             }
             System.out.print('\n');
         }
+        System.out.print('\n');
     }
 
     private enum Condition {
