@@ -1,6 +1,9 @@
 package me.grinney.target.land_analysis;
 
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
+
+import java.util.List;
 
 public class LandTest {
 
@@ -10,7 +13,7 @@ public class LandTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testConstructorInvalidArgs() {
+    public void testConstructorNagativeDimension() {
         new Land(-1, 50);
     }
 
@@ -22,22 +25,39 @@ public class LandTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    void testAddBarrenPlotNegativeDimensions() {
+    void testAddBarrenPlotNegativeDimension() {
         Land land = new Land(400, 600);
         land.addBarrenPlot(-5,0,0,0);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    void testAddBarrenPlotExceedDimensions() {
+    void testAddBarrenPlotExceedDimension() {
         Land land = new Land(400, 600);
         land.addBarrenPlot(0,0,400,0);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    void testAddBarrenPlotBackwardDimensions() {
+    void testAddBarrenPlotBackwardDimension() {
         Land land = new Land(400, 600);
         land.addBarrenPlot(25,0,24,0);
     }
 
+    @Test
+    void testComputeFertileAreas() {
+        Land land = new Land(400, 600);
+        land.addBarrenPlot(0, 292, 399, 307);
+        List<Integer> areas = land.computeFertileAreas();
+        assertEquals((int) areas.get(0), 116800);
+        assertEquals((int) areas.get(1), 116800);
+    }
+
+    @Test
+    void testComputeFertileAreas2() {
+        Land land = new Land(4, 6);
+        land.addBarrenPlot(0, 1, 3, 4);
+        List<Integer> areas = land.computeFertileAreas();
+        assertEquals((int) areas.get(0), 4);
+        assertEquals((int) areas.get(1), 4);
+    }
 
 }
