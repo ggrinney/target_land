@@ -57,6 +57,13 @@ public class LandTest {
         assertEquals((int) areas.get(1), 116800);
 
         land = new Land(400, 600);
+        land.addBarrenPlot(0, 292, 399, 307);
+        land.addBarrenPlot(0, 0, 0, 0);
+        areas = land.computeFertileAreas();
+        assertEquals((int) areas.get(0), 116799);
+        assertEquals((int) areas.get(1), 116800);
+
+        land = new Land(400, 600);
         land.addBarrenPlot(48, 192, 351, 207);
         land.addBarrenPlot(48, 392, 351, 407);
         land.addBarrenPlot(120, 52, 135, 547);

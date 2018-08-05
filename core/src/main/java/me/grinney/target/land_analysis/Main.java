@@ -22,9 +22,12 @@ public class Main {
 
     public static void main(String[] args) {
         Land land = createLand(args);
+        parseInput(land);
+        generateOutput(land);
+    }
 
+    private static void parseInput(Land land) {
         Scanner s = new Scanner(System.in);
-
         String coordString;
 
         while ((coordString = s.findWithinHorizon(rectangle, 0)) != null) {
@@ -34,7 +37,9 @@ public class Main {
                     Integer.parseInt(coords[2]),
                     Integer.parseInt(coords[3]));
         }
+    }
 
+    private static void generateOutput(Land land) {
         boolean first = true;
         for(Integer integer : land.computeFertileAreas()) {
             if(!first) {
