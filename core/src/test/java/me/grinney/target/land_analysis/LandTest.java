@@ -72,5 +72,4 @@ public class LandTest {
         assertEquals((int) areas.get(0), 22816);
         assertEquals((int) areas.get(1), 192608);
     }
-
 }
